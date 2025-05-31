@@ -1,1 +1,203 @@
-<!DOCTYPE html><html lang="zh-CN"><head>    <meta charset="UTF-8">    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>数字时钟</title>    <script src="https://cdn.tailwindcss.com"></script>    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">    <script>        tailwind.config = {            theme: {                extend: {                    colors: {                        primary: '#165DFF',                        secondary: '#36D399',                        dark: '#1E293B',                        light: '#F8FAFC'                    },                    fontFamily: {                        inter: ['Inter', 'sans-serif'],                    },                }            }        }    </script>    <style type="text/tailwindcss">        @layer utilities {            .content-auto {                content-visibility: auto;            }            .text-shadow {                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);            }            .bg-glass {                background: rgba(255, 255, 255, 0.25);                backdrop-filter: blur(10px);                border: 1px solid rgba(255, 255, 255, 0.18);            }            .animate-pulse-slow {                animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;            }        }    </style></head><body class="min-h-screen bg-gradient-to-br from-dark to-gray-800 font-inter text-light flex flex-col items-center justify-center p-4">    <div class="w-full max-w-4xl mx-auto text-center mb-8">        <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary text-shadow">            数字时钟        </h1>        <p class="text-gray-300 text-lg md:text-xl">实时显示当前时间和日期</p>    </div>    <div class="relative w-full max-w-3xl mx-auto">        <!-- 主时钟卡片 -->        <div id="clock-container" class="bg-glass rounded-2xl p-6 md:p-10 shadow-2xl transition-all duration-500 hover:shadow-primary/30 hover:scale-[1.01]">            <!-- 时间显示 -->            <div id="time-display" class="text-[clamp(2.5rem,10vw,6rem)] font-mono font-bold flex justify-center items-center space-x-2 mb-4">                <span id="hours" class="transition-all duration-300">00</span>                <span class="text-primary text-[clamp(2rem,8vw,5rem)]">:</span>                <span id="minutes" class="transition-all duration-300">00</span>                <span class="text-primary text-[clamp(2rem,8vw,5rem)]">:</span>                <span id="seconds" class="transition-all duration-300">00</span>                <span id="period" class="text-[clamp(1rem,4vw,2rem)] ml-2 text-secondary">AM</span>            </div>            <!-- 日期显示 -->            <div id="date-display" class="text-[clamp(1.2rem,4vw,2rem)] font-medium text-gray-200 mb-6">                <span id="day">星期一</span>,                 <span id="date">2023年1月1日</span>            </div>            <!-- 世界时钟选择器 -->            <div class="mt-6">                <h3 class="text-lg font-semibold text-gray-300 mb-3">查看其他时区</h3>                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">                    <button class="timezone-btn bg-dark/50 hover:bg-primary/20 transition-all duration-300 rounded-lg p-3 text-left" data-timezone="America/New_York">                        <div class="flex items-center">                            <i class="fa fa-map-marker text-primary mr-2"></i>                            <span class="font-medium">纽约</span>                        </div>                        <div class="timezone-time mt-1 text-sm text-gray-300">加载中...</div>                    </button>                                        <button class="timezone-btn bg-dark/50 hover:bg-primary/20 transition-all duration-300 rounded-lg p-3 text-left" data-timezone="Europe/London">                        <div class="flex items-center">                            <i class="fa fa-map-marker text-primary mr-2"></i>                            <span class="font-medium">伦敦</span>                        </div>                        <div class="timezone-time mt-1 text-sm text-gray-300">加载中...</div>                    </button>                                        <button class="timezone-btn bg-dark/50 hover:bg-primary/20 transition-all duration-300 rounded-lg p-3 text-left" data-timezone="Asia/Tokyo">                        <div class="flex items-center">                            <i class="fa fa-map-marker text-primary mr-2"></i>                            <span class="font-medium">东京</span>                        </div>                        <div class="timezone-time mt-1 text-sm text-gray-300">加载中...</div>                    </button>                </div>            </div>        </div>        <!-- 装饰元素 -->        <div class="absolute -z-10 w-40 h-40 bg-primary/30 rounded-full blur-3xl -top-10 -left-10 animate-pulse-slow"></div>        <div class="absolute -z-10 w-60 h-60 bg-secondary/20 rounded-full blur-3xl -bottom-20 -right-20 animate-pulse-slow" style="animation-delay: 1s;"></div>    </div>    <footer class="mt-12 text-center text-gray-500 text-sm">        <p>© 2023 数字时钟 | 优雅地显示时间</p>    </footer>    <script>        // 更新本地时间        function updateLocalTime() {            const now = new Date();            let hours = now.getHours();            const minutes = now.getMinutes().toString().padStart(2, '0');            const seconds = now.getSeconds().toString().padStart(2, '0');                        // 确定上午/下午            const period = hours >= 12 ? 'PM' : 'AM';                        // 转换为12小时制            hours = hours % 12;            hours = hours ? hours : 12; // 0应该显示为12            hours = hours.toString().padStart(2, '0');                        // 更新DOM            document.getElementById('hours').textContent = hours;            document.getElementById('minutes').textContent = minutes;            document.getElementById('seconds').textContent = seconds;            document.getElementById('period').textContent = period;                        // 更新日期            const days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];            const day = days[now.getDay()];            const date = `${now.getFullYear()}年${(now.getMonth() + 1).toString().padStart(2, '0')}月${now.getDate().toString().padStart(2, '0')}日`;                        document.getElementById('day').textContent = day;            document.getElementById('date').textContent = date;        }                // 更新世界时钟        function updateWorldClocks() {            const timezoneButtons = document.querySelectorAll('.timezone-btn');                        timezoneButtons.forEach(button => {                const timezone = button.getAttribute('data-timezone');                const now = new Date();                const options = {                    hour: '2-digit',                    minute: '2-digit',                    second: '2-digit',                    hour12: true,                    timeZone: timezone                };                                try {                    const timeString = now.toLocaleTimeString('zh-CN', options);                    button.querySelector('.timezone-time').textContent = timeString;                } catch (error) {                    button.querySelector('.timezone-time').textContent = '无法加载';                }            });        }                // 初始更新        updateLocalTime();        updateWorldClocks();                // 设置定时器每秒更新一次        setInterval(updateLocalTime, 1000);        setInterval(updateWorldClocks, 5000);                // 添加按钮点击效果        document.querySelectorAll('.timezone-btn').forEach(button => {            button.addEventListener('click', function() {                this.classList.add('bg-primary/30');                setTimeout(() => {                    this.classList.remove('bg-primary/30');                }, 300);            });        });                // 添加数字变化动画效果        const timeElements = document.querySelectorAll('#hours, #minutes, #seconds');        timeElements.forEach(element => {            let lastValue = element.textContent;            setInterval(() => {                const currentValue = element.textContent;                if (lastValue !== currentValue) {                    element.classList.add('scale-110', 'text-primary');                    setTimeout(() => {                        element.classList.remove('scale-110', 'text-primary');                    }, 300);                    lastValue = currentValue;                }            }, 100);        });    </script></body></html>    
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>急伯MC服务器管网</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36D399',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .bg-glass {
+                background: rgba(255, 255, 255, 0.25);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+            }
+            .animate-pulse-slow {
+                animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-dark to-gray-800 font-inter text-light flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-4xl mx-auto text-center mb-8">
+        <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary text-shadow">
+            数字时钟
+        </h1>
+        <p class="text-gray-300 text-lg md:text-xl">实时显示当前时间和日期</p>
+    </div>
+
+    <div class="relative w-full max-w-3xl mx-auto">
+        <!-- 主时钟卡片 -->
+        <div id="clock-container" class="bg-glass rounded-2xl p-6 md:p-10 shadow-2xl transition-all duration-500 hover:shadow-primary/30 hover:scale-[1.01]">
+            <!-- 时间显示 -->
+            <div id="time-display" class="text-[clamp(2.5rem,10vw,6rem)] font-mono font-bold flex justify-center items-center space-x-2 mb-4">
+                <span id="hours" class="transition-all duration-300">00</span>
+                <span class="text-primary text-[clamp(2rem,8vw,5rem)]">:</span>
+                <span id="minutes" class="transition-all duration-300">00</span>
+                <span class="text-primary text-[clamp(2rem,8vw,5rem)]">:</span>
+                <span id="seconds" class="transition-all duration-300">00</span>
+                <span id="period" class="text-[clamp(1rem,4vw,2rem)] ml-2 text-secondary">AM</span>
+            </div>
+
+            <!-- 日期显示 -->
+            <div id="date-display" class="text-[clamp(1.2rem,4vw,2rem)] font-medium text-gray-200 mb-6">
+                <span id="day">星期一</span>, 
+                <span id="date">2023年1月1日</span>
+            </div>
+
+            <!-- 世界时钟选择器 -->
+            <div class="mt-6">
+                <h3 class="text-lg font-semibold text-gray-300 mb-3">查看其他时区</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button class="timezone-btn bg-dark/50 hover:bg-primary/20 transition-all duration-300 rounded-lg p-3 text-left" data-timezone="America/New_York">
+                        <div class="flex items-center">
+                            <i class="fa fa-map-marker text-primary mr-2"></i>
+                            <span class="font-medium">纽约</span>
+                        </div>
+                        <div class="timezone-time mt-1 text-sm text-gray-300">加载中...</div>
+                    </button>
+                    
+                    <button class="timezone-btn bg-dark/50 hover:bg-primary/20 transition-all duration-300 rounded-lg p-3 text-left" data-timezone="Europe/London">
+                        <div class="flex items-center">
+                            <i class="fa fa-map-marker text-primary mr-2"></i>
+                            <span class="font-medium">伦敦</span>
+                        </div>
+                        <div class="timezone-time mt-1 text-sm text-gray-300">加载中...</div>
+                    </button>
+                    
+                    <button class="timezone-btn bg-dark/50 hover:bg-primary/20 transition-all duration-300 rounded-lg p-3 text-left" data-timezone="Asia/Tokyo">
+                        <div class="flex items-center">
+                            <i class="fa fa-map-marker text-primary mr-2"></i>
+                            <span class="font-medium">东京</span>
+                        </div>
+                        <div class="timezone-time mt-1 text-sm text-gray-300">加载中...</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 装饰元素 -->
+        <div class="absolute -z-10 w-40 h-40 bg-primary/30 rounded-full blur-3xl -top-10 -left-10 animate-pulse-slow"></div>
+        <div class="absolute -z-10 w-60 h-60 bg-secondary/20 rounded-full blur-3xl -bottom-20 -right-20 animate-pulse-slow" style="animation-delay: 1s;"></div>
+    </div>
+
+    <footer class="mt-12 text-center text-gray-500 text-sm">
+        <p>© 2023 数字时钟 | 优雅地显示时间</p>
+    </footer>
+
+    <script>
+        // 更新本地时间
+        function updateLocalTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            // 确定上午/下午
+            const period = hours >= 12 ? 'PM' : 'AM';
+            
+            // 转换为12小时制
+            hours = hours % 12;
+            hours = hours ? hours : 12; // 0应该显示为12
+            hours = hours.toString().padStart(2, '0');
+            
+            // 更新DOM
+            document.getElementById('hours').textContent = hours;
+            document.getElementById('minutes').textContent = minutes;
+            document.getElementById('seconds').textContent = seconds;
+            document.getElementById('period').textContent = period;
+            
+            // 更新日期
+            const days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const day = days[now.getDay()];
+            const date = `${now.getFullYear()}年${(now.getMonth() + 1).toString().padStart(2, '0')}月${now.getDate().toString().padStart(2, '0')}日`;
+            
+            document.getElementById('day').textContent = day;
+            document.getElementById('date').textContent = date;
+        }
+        
+        // 更新世界时钟
+        function updateWorldClocks() {
+            const timezoneButtons = document.querySelectorAll('.timezone-btn');
+            
+            timezoneButtons.forEach(button => {
+                const timezone = button.getAttribute('data-timezone');
+                const now = new Date();
+                const options = {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true,
+                    timeZone: timezone
+                };
+                
+                try {
+                    const timeString = now.toLocaleTimeString('zh-CN', options);
+                    button.querySelector('.timezone-time').textContent = timeString;
+                } catch (error) {
+                    button.querySelector('.timezone-time').textContent = '无法加载';
+                }
+            });
+        }
+        
+        // 初始更新
+        updateLocalTime();
+        updateWorldClocks();
+        
+        // 设置定时器每秒更新一次
+        setInterval(updateLocalTime, 1000);
+        setInterval(updateWorldClocks, 5000);
+        
+        // 添加按钮点击效果
+        document.querySelectorAll('.timezone-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                this.classList.add('bg-primary/30');
+                setTimeout(() => {
+                    this.classList.remove('bg-primary/30');
+                }, 300);
+            });
+        });
+        
+        // 添加数字变化动画效果
+        const timeElements = document.querySelectorAll('#hours, #minutes, #seconds');
+        timeElements.forEach(element => {
+            let lastValue = element.textContent;
+            setInterval(() => {
+                const currentValue = element.textContent;
+                if (lastValue !== currentValue) {
+                    element.classList.add('scale-110', 'text-primary');
+                    setTimeout(() => {
+                        element.classList.remove('scale-110', 'text-primary');
+                    }, 300);
+                    lastValue = currentValue;
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
+    
